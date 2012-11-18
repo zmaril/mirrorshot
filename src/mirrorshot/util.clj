@@ -36,3 +36,7 @@
         pixels (make-array Integer/TYPE (* w h))]
     (.grabPixels (PixelGrabber. image 0 0 w h pixels 0 w))
     pixels))
+
+(defn printlnn [a]
+  (println a)
+  a)

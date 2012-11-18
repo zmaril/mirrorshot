@@ -1,27 +1,29 @@
 (ns mirrorshot.core
-  (:import (java.awt Graphics Graphics2D Color Polygon)
-           (java.awt.image BufferedImage PixelGrabber)
+  (:import (java.awt.image BufferedImage PixelGrabber)
            (java.io File)
+           (java.awt Graphics Graphics2D Color Polygon)
            (javax.imageio ImageIO)
-           (javax.swing JFrame JPanel)
-           (mirrorshot.records Critter))
+           (javax.swing JFrame JPanel))
   (:require [mirrorshot.records :as r]
             [mirrorshot.mutate  :as m])
   (:use mirrorshot.util))
 
+(def sample-size 1000)
 (defn -main []
   (let [image (-> "pic.jpg"
-                     (File.)
-                     ImageIO/read)
+                  (File.)
+                  ImageIO/read)
         fittest (atom [m/initial-critter])
         jframe (JFrame. "String")
+        src (grab-pixels image)
         settings {:width  (.getWidth image)
                   :height (.getHeight image)
-                  :src (grab-pixels image)
+                  :src src
                   :select-rate 1
-                  :callback (fn [i f]
-                                  (swap! fittest (fn [o n] n) f)
-                                  (.repaint jframe))}]
+                  :callback (fn [i next-fittest]
+                              (swap! fittest (fn [o n] n) next-fittest)
+                              (.repaint jframe))
+                  :sample-size sample-size}]
     (doto jframe
       (.setSize (:width settings) (:height settings))
       (.add (proxy [JPanel] []
