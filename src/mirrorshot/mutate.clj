@@ -1,8 +1,8 @@
 (ns mirrorshot.mutate
   (:import (mirrorshot.records DNA-Seq Simple-Polygon Simple-Color Simple-Point Critter)
-           (java.awt Graphics Graphics2D Color Polygon))
-
-  (:require [mirrorshot.records :as r] )
+           (java.awt Graphics Graphics2D Color Polygon)) 
+  (:require [mirrorshot.records :as r]
+            [incanter.stats :as c])
   (:use mirrorshot.util))
 
 
@@ -18,8 +18,8 @@
 
 (def initial-critter (Critter. initial-strand nil -100))
 
-(def color-delta 255)
-(def point-delta 1000)
+(def color-sd 20)
+(def point-sd 100)
 
 (defn bound [i j n]
   (max i (min n j)))
@@ -27,17 +27,14 @@
 (defn mutate-polygon [polygon {:keys [width height]}]
   (-> polygon
       (update-in [:color (rand-nth [:blue :red :green :alpha])]
-                 (fn [n] (int (bound 0 255 (+ n (-> color-delta - (/ 2))
-                                              (rand-int color-delta))))))
+                 (fn [n] (int (bound 0 255 (c/sample-normal 1 :mean n :sd color-sd)))))
       (update-in [:points (rand-int number-of-vertices)]
                  (fn [point]
                    (-> point
                        (update-in [:x] (fn [x] (bound 0 width
-                                                      (int (+ x (-> point-delta - (/ 2))
-                                                              (rand-int point-delta))))))
+                                                      (c/sample-normal 1 :mean x :sd point-sd))))
                        (update-in [:y] (fn [y] (bound 0 height
-                                                      (int (+ y (-> point-delta - (/ 2))
-                                                              (rand-int point-delta)))))))))))
+                                                      (c/sample-normal 1 :mean y :sd point-sd)))))))))
 (defn mutate [dna settings]
   (let [results
         (update-in dna [:DNA :polygons]
