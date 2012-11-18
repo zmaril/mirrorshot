@@ -73,8 +73,7 @@
         sorted (sort-by :fitness fitted)
         mean-fitness (float (/ (reduce + (map :fitness sorted))
                                     (count sorted)))
-        seconds-so-far (float (/ (- (System/currentTimeMillis) start-time) 1000)) 
-        ]
+        seconds-so-far (float (/ (- (System/currentTimeMillis) start-time) 1000))]
     (println seconds-so-far mean-fitness)
     (take (:select-rate settings) sorted)))
 
@@ -87,5 +86,6 @@
       (print "Generation" i " ")
       (when-not (= (first population)
                    (first fittest))
-        ((:callback settings) i fittest)
+        (when (= 0 (mod i 20))          
+          ((:callback settings) i fittest))
         (recur (inc i) (concat fittest newborns))))))
