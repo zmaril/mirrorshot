@@ -6,8 +6,8 @@
   (:use mirrorshot.util))
 
 
-(def number-of-polygons 50)
-(def number-of-vertices 6)
+(def number-of-polygons 1000)
+(def number-of-vertices 12)
 
 (def initial-strand (DNA-Seq. (for [i (range number-of-polygons)]
                                    (Simple-Polygon.

@@ -8,7 +8,7 @@
             [mirrorshot.mutate  :as m])
   (:use mirrorshot.util))
 
-(def sample-size 1000)
+(def sample-size 10000)
 
 (defn -main []
   (let [image (-> "pic.jpg"
