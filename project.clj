@@ -5,4 +5,5 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.4.0"]
                  [incanter "1.4.0"]]
-  :main mirrorshot.core)
+  :main mirrorshot.core
+  :warn-on-reflection true)

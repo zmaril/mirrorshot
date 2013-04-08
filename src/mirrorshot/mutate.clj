@@ -5,9 +5,15 @@
             [incanter.stats :as c])
   (:use mirrorshot.util))
 
+(set! *warn-on-reflection* true)
+
+;; Parameters
 
 (def number-of-polygons 1000)
 (def number-of-vertices 12)
+(def color-sd 20)
+(def point-sd 100)
+
 
 (def initial-strand (DNA-Seq. (for [i (range number-of-polygons)]
                                    (Simple-Polygon.
@@ -17,9 +23,6 @@
                                            (Simple-Point. (rand-int 1000) (rand-int 1000))))))))
 
 (def initial-critter (Critter. initial-strand nil -100))
-
-(def color-sd 20)
-(def point-sd 100)
 
 (defn bound [i j n]
   (max i (min n j)))
@@ -47,26 +50,29 @@
       (mutate results settings)
       results)))
 
-(defn color-distance [a b]
+(defn color-distance [^Color a ^Color b]
   (let [dr (- (.getRed a) (.getRed b))
         db (- (.getBlue a) (.getBlue b))
         dg (- (.getGreen a) (.getGreen b))]
     (+ (* dr dr) (* dg dg) (* db db ))))
 
-(defn fitness [critter {:keys [src height width] :as settings}]
+(defn fitness [critter {:keys [src height width] :as settings}];;Is
+  ;;this slow? 
   (let [buffer (r/draw-dna-seq (:DNA critter) settings)
         fitness  (let [gen (grab-pixels buffer)
                        samples (for [i (range 1000)] (* (rand-int height) (rand-int width)))
                        point-compare (fn [i]
-                                       (color-distance (Color. (aget src i))
-                                                       (Color. (aget gen i))))]
+                                       (color-distance (Color. (aget ^ints src i))
+                                                       (Color. (aget ^ints gen i))))]
                    (reduce + (map point-compare samples)))]
     (merge critter {:buffer buffer
                     :fitness fitness})))
 
 (def start-time (System/currentTimeMillis))
+
 (defn select [population settings]
-  (let [fitted (pmap (fn [critter] (fitness critter settings)) population)
+  ;;TODO increase heap size, default to server
+  (let [fitted (pmap (fn [critter] (fitness critter settings)) population)         
         sorted (sort-by :fitness fitted)
         mean-fitness (float (/ (reduce + (map :fitness sorted))
                                     (count sorted)))
@@ -79,7 +85,10 @@
   (loop [i 0
          population (list initial-critter)]    
     (let [fittest (select population settings)
-          newborns (flatten (map #(for [i (range 10)] (mutate % settings)) fittest))]
+          sampler (fn sample [critter] 
+                    (for [i (range (:sample-size settings))] 
+                      (mutate critter settings)))
+          newborns (mapcat sampler fittest)]
       (print "Generation" i " ")
       (when-not (= (first population)
                    (first fittest))

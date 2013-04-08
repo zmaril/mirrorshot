@@ -8,36 +8,28 @@
             [mirrorshot.mutate  :as m])
   (:use mirrorshot.util))
 
-(def sample-size 10000)
+(def sample-size 10)
+
+(set! *warn-on-reflection* true)
 
 (defn -main []
   (let [image (-> "pic.jpg"
                   (File.)
                   ImageIO/read)
         fittest (atom [m/initial-critter])
-;;        jframe (JFrame. "String")
         src (grab-pixels image)
         settings {:width  (.getWidth image)
                   :height (.getHeight image)
                   :src src
                   :select-rate 1
+                  ;;TODO: generation print rate
                   :callback (fn [i next-fittest]
                               (swap! fittest (fn [o n] n) next-fittest)
-  ;;                            (.repaint jframe)
-                              (ImageIO/write (:buffer (first @fittest))
+                              (ImageIO/write ^BufferedImage (:buffer (first @fittest))
                                              "PNG"
-                                             (File. "output/best.png"))
-                              (ImageIO/write (:buffer (first @fittest))
+                                             ^File (File. "output/best.png"))
+                              (ImageIO/write ^BufferedImage (:buffer (first @fittest))
                                              "PNG"
-                                             (File. (str "output/gen-" i ".png"))))
+                                             ^File (File. (str "output/gen-" i ".png"))))
                   :sample-size sample-size}]
-    ;; (doto jframe
-    ;;   (.setSize (:width settings) (:height settings))
-    ;;   (.add (proxy [JPanel] []
-    ;;           (paint [g]
-    ;;             (doto g 
-    ;;               (.setColor Color/white)
-    ;;               (.fillRect 0 0 (:width settings) (:height settings))
-    ;;               (.drawImage (:buffer (first @fittest)) nil 0 0)))))
-    ;;   (.setVisible true))
     (m/evolve settings)))

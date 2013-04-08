@@ -3,6 +3,8 @@
              (java.awt.image BufferedImage PixelGrabber))
   (:use mirrorshot.util))
 
+(set! *warn-on-reflection* true)
+
 ;;Records
 (defrecord Simple-Color [red blue green alpha])
 (defrecord Simple-Point [x y])
@@ -12,18 +14,18 @@
 
 
 ;;Methods for drawing polygons
-(defn draw-polygon [g polygon]
-  (let [new-color  (Color. (:red   (:color polygon))
-                           (:blue  (:color polygon))
-                           (:green (:color polygon) )
-                           (:alpha (:color polygon)))
+(defn draw-polygon [^Graphics2D g polygon];;TODO is this slower than it has to be? 
+  (let [new-color  (Color. ^Integer (:red   (:color polygon))
+                           ^Integer (:blue  (:color polygon))
+                           ^Integer (:green (:color polygon))
+                           ^Integer (:alpha (:color polygon)))
         poly  (let [jpolygon (new Polygon)]
                 (doseq [p (:points polygon)]
                   (.addPoint jpolygon (:x p) (:y p)))
                 jpolygon)]
     (doto g 
-      (.setColor new-color)
-      (.fillPolygon poly))))
+      (.setColor ^Color new-color)
+      (.fillPolygon ^Polygon poly))))
 
 (defn draw-dna-seq [dna {:keys [width height]}]
   (let [polygons (:polygons dna)
