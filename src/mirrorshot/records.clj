@@ -14,7 +14,7 @@
 
 
 ;;Methods for drawing polygons
-(defn draw-polygon [^Graphics2D g polygon];;TODO is this slower than it has to be? 
+(defn draw-polygon [^Graphics2D g polygon]
   (let [new-color  (Color. ^Integer (:red   (:color polygon))
                            ^Integer (:blue  (:color polygon))
                            ^Integer (:green (:color polygon))

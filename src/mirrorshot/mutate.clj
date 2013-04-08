@@ -9,7 +9,7 @@
 
 ;; Parameters
 
-(def number-of-polygons 1000)
+(def number-of-polygons 100)
 (def number-of-vertices 12)
 (def color-sd 20)
 (def point-sd 100)
@@ -60,7 +60,7 @@
   ;;this slow? 
   (let [buffer (r/draw-dna-seq (:DNA critter) settings)
         fitness  (let [gen (grab-pixels buffer)
-                       samples (for [i (range 1000)] (* (rand-int height) (rand-int width)))
+                       samples (for [i (range 1000000)] (* (rand-int height) (rand-int width)))
                        point-compare (fn [i]
                                        (color-distance (Color. (aget ^ints src i))
                                                        (Color. (aget ^ints gen i))))]
@@ -77,7 +77,7 @@
         mean-fitness (float (/ (reduce + (map :fitness sorted))
                                     (count sorted)))
         seconds-so-far (float (/ (- (System/currentTimeMillis) start-time) 1000))]
-    (println seconds-so-far mean-fitness)
+    (println seconds-so-far mean-fitness (:fitness (first sorted)))
     (take (:select-rate settings) sorted)))
 
 
